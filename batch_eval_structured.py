@@ -14,11 +14,26 @@ if sys.argv[1:2] == ["mini"]:
     batch_result = "exp/structured_response_mini.jsonl"
     batch_id = "exp/structured_batch_id_mini"
     model_name = "gpt-4o-mini-2024-07-18"
+    reasoning = "reasoning"
+elif sys.argv[1:2] == ["o1"]:
+    batch_file_path = "exp/structured_request_o.jsonl"
+    batch_result = "exp/structured_response_o.jsonl"
+    batch_id = "exp/structured_batch_id_o"
+    model_name = "o1-2024-12-17"
+    reasoning = "explanation"
+elif sys.argv[1:2] == ["o3-mini"]:
+    #model_name = "o3‐mini‐2025‐01‐31"
+    model_name = "o3‐mini"
+    batch_file_path = f"exp/structured_request_{model_name}.jsonl"
+    batch_result = f"exp/structured_response_{model_name}.jsonl"
+    batch_id = f"exp/structured_batch_id_{model_name}"
+    reasoning = "explanation"
 else:
     batch_file_path = "exp/structured_request.jsonl"
     batch_result = "exp/structured_response.jsonl"
     batch_id = "exp/structured_batch_id"
     model_name = "gpt-4o"
+    reasoning = "reasoning"
 
 data = []
 with open(file_path, 'r') as f:
@@ -54,9 +69,9 @@ if stage < 1:
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "reasoning": {"type": "string"},
+                                    reasoning: {"type": "string"},
                                 } | {label: {"type": "boolean"} for label in all_labels},
-                                "required": ["reasoning"] + all_labels,
+                                "required": [reasoning] + all_labels,
                                 "additionalProperties": False,
                             },
                         },
@@ -77,7 +92,7 @@ if stage < 2:
         endpoint="/v1/chat/completions",
         completion_window="24h",
         metadata={
-            "description": "nightly eval job"
+            "description": batch_file_path
         }
     )
     print(batch.id)
